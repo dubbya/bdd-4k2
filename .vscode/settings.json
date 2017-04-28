@@ -1,0 +1,14 @@
+{
+    "terminal.integrated.shell.windows": "C:\\Windows\\sysnative\\WindowsPowerShell\\v1.0\\powershell.exe",
+
+    "cucumberautocomplete.steps": [
+        "features/support/*.js"
+    ],
+    "cucumberautocomplete.pages": {
+    },
+    "editor.quickSuggestions": {
+        "comments": false,
+        "strings": true,
+        "other": true
+    }
+}
