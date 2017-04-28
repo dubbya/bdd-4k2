@@ -1,7 +1,6 @@
 {
   "name": "bdd-4k2",
   "version": "1.0.0",
-  "description": "",
   "main": "chimp.js",
   "dependencies": {
     "async": "^2.3.0",
@@ -15,10 +14,21 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "mocha",
-    "create-svc": "node ./report_webserver/create-reporting-windows-service.js",
-    "test-webserver": "node ./report_webserver/run-web-server.js"
+    "test": "mocha"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "bin": {
+    "runfeatures": "./bin/bdd-4k2.js"
+  },
+  "preferGlobal": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dubbya/bdd-4k2.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dubbya/bdd-4k2/issues"
+  },
+  "homepage": "https://github.com/dubbya/bdd-4k2#readme",
+  "description": ""
 }
