@@ -1,5 +1,5 @@
 {
-  "name": "testing",
+  "name": "bdd-4k2",
   "version": "1.0.0",
   "description": "",
   "main": "chimp.js",
@@ -8,7 +8,6 @@
     "chimp": "^0.48.0",
     "cucumber-html-reporter": "^0.4.0",
     "express": "^4.15.2",
-    "gulp": "^3.9.1",
     "node-windows": "^0.1.14",
     "run-sequence": "^1.2.2",
     "xmldom": "^0.1.27",
