@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var myLibrary = require('../lib/index.js')
+var myLibrary = require('../lib/index.js');
 
 // Runs chimp and creates html report
-myLibrary.run
+myLibrary.run()

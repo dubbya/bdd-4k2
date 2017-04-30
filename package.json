@@ -1,12 +1,13 @@
 {
   "name": "bdd-4k2",
   "version": "1.0.0",
-  "main": "chimp.js",
+  "main": "server.js",
   "dependencies": {
     "async": "^2.3.0",
     "chimp": "^0.48.0",
     "cucumber-html-reporter": "^0.4.0",
     "express": "^4.15.2",
+    "ncp": "^2.0.0",
     "node-windows": "^0.1.14",
     "run-sequence": "^1.2.2",
     "xmldom": "^0.1.27",
@@ -14,12 +15,15 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "create-reporting-svc": "node ./report_webserver/report-create-windows-service.js",
+    "delete-reporting-svc": "node ./report_webserver/report-delete-windows-service.js",
+    "run-webserver": "node ./report_webserver/report-run-webserver.js"
   },
   "author": "",
   "license": "ISC",
   "bin": {
-    "runfeatures": "./bin/bdd-4k2.js"
+    "bdd-4k2": "./bin/bdd-4k2.js"
   },
   "preferGlobal": true,
   "repository": {

@@ -1,20 +1,23 @@
+var outputFolder = 'bdd_output'
+
 module.exports = {
-  // - - - - GULP CHIMP SETTINGS - - - -
+  // - - - - CHIMP SETTINGS - - - -
   showXolvioMessages: false,
   timeout: 5000,
   port: 4455,
 
-  // - - - - GULP CHIMP CUCUMBER - - - -
-  jsonOutput: './e2e_output/cucumber.json',
+  // - - - - CUCUMBER SETTINGS - - - -
+  jsonOutput: './' + outputFolder + '/report.json',
   screenshotsOnError: true,
-  screenshotsPath: './e2e_output/screenshots',
+  screenshotsPath: '/' + outputFolder + '/screenshots',
   saveScreenshotsToDisk: true,
   saveScreenshotsToReport: true,
 
-  // - - - - REPORTER - - - -
+  // - - - - REPORTER SETTINGS - - - -
+  reportPath: outputFolder + '/report',
   theme: 'bootstrap',
-  jsonFile: 'e2e_output/cucumber.json',
-  output: 'e2e_output/report/cucumber.html',
+  jsonFile: outputFolder + '/report.json',
+  output: outputFolder + '/report/report.html',
   reportSuiteAsScenarios: true,
   launchReport: false,
   metadata: {
@@ -22,3 +25,5 @@ module.exports = {
     "Browser": "Chrome"
   }
 }
+
+module.exports.outputFolder = outputFolder
