@@ -1,6 +1,6 @@
 {
   "name": "bdd-4k2",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "server.js",
   "dependencies": {
     "async": "^2.3.0",
@@ -24,7 +24,7 @@
   "author": "",
   "license": "ISC",
   "bin": {
-     "bdd-4k2": "./bin/bdd-4k2.js"
+    "bdd-4k2": "./bin/bdd-4k2.js"
   },
   "preferGlobal": true,
   "repository": {
