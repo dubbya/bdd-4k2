@@ -16,12 +16,10 @@
   "devDependencies": {},
   "scripts": {
     "test": "mocha",
-    "debug": "node --nolazy --debug-brk=5858 ./lib/index.js",
-    "create-reporting-svc": "node ./report_webserver/report-create-windows-service.js",
-    "delete-reporting-svc": "node ./report_webserver/report-delete-windows-service.js",
+    "debug": "node ./lib/index.js",
     "run-webserver": "node ./report_webserver/report-run-webserver.js"
   },
-  "author": "",
+  "author": "dubbya",
   "license": "ISC",
   "bin": {
     "bdd-4k2": "./bin/bdd-4k2.js"

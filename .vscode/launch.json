@@ -7,9 +7,26 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
-            "program": "${workspaceRoot}\\server.js",
-            "cwd":"C:\\stage"
+            "name": "Launch via bdd-4k2",
+            "runtimeExecutable": "bdd-4k2",
+            "windows": {
+                "runtimeExecutable": "bdd-4k2.cmd"
+            },
+            "port": 5858
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch via NPM",
+            "runtimeExecutable": "npm",
+            "windows": {
+                "runtimeExecutable": "npm.cmd"
+            },
+            "runtimeArgs": [
+                "run-script",
+                "debug"
+            ],
+            "port": 5858
         },
         {
             "type": "node",
