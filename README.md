@@ -1,4 +1,4 @@
-# Node Schedule
+# BDD for K2
 
 [![NPM version](http://img.shields.io/npm/v/bdd-4k2.svg)](https://www.npmjs.com/package/bdd-4k2)
 [![Downloads](https://img.shields.io/npm/dm/bdd-4k2.svg)](https://www.npmjs.com/package/bdd-4k2)
