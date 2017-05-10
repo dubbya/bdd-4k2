@@ -63,5 +63,5 @@ Coming soon
 [![NPM](https://nodei.co/npm/bdd-4k2.png?downloads=true)](https://nodei.co/npm/bdd-4k2/)
 
 [K2]: https://www.k2.com/
-[HTML report generation]: https://github.com/gkushang/cucumber-html-reporter
+[cucumber html reporter]: https://github.com/gkushang/cucumber-html-reporter
 [chimp]: https://github.com/xolvio/chimp
