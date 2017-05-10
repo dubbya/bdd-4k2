@@ -58,7 +58,7 @@ http://localhost:3000/report.html
 
 ### Scheduling
 
-Coming soon
+Coming soon (but currently can use windows scheduler to call bdd-4k2, the future will use the windows service instead)
 
 [![NPM](https://nodei.co/npm/bdd-4k2.png?downloads=true)](https://nodei.co/npm/bdd-4k2/)
 
