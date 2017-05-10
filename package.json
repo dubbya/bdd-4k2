@@ -17,7 +17,9 @@
   "scripts": {
     "test": "mocha",
     "debug": "node ./lib/index.js",
-    "run-webserver": "node ./report_webserver/report-run-webserver.js"
+    "run-webserver": "node ./report_webserver/report-run-webserver.js",
+    "debug-install-service":"node --nolazy --debug-brk=5858 ./bin/bdd-4k2.js install-service",
+    "debug-uninstall-service":"node --nolazy --debug-brk=5858 ./bin/bdd-4k2.js uninstall-service"
   },
   "author": "dubbya",
   "license": "ISC",
