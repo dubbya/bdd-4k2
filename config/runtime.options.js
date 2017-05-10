@@ -9,7 +9,7 @@ module.exports = {
   // - - - - CUCUMBER SETTINGS - - - -
   jsonOutput: './' + outputFolder + '/report.json',
   screenshotsOnError: true,
-  screenshotsPath: '/' + outputFolder + '/screenshots',
+  screenshotsPath: './' + outputFolder + '/screenshots',
   saveScreenshotsToDisk: true,
   saveScreenshotsToReport: true,
 
