@@ -95,29 +95,36 @@ module.exports = function () {
 
 	//picker, date fields, textbox
 	this.When(/^I type "([^"]*)" in "([^"]*)"$/, function (txt, name) {
-		var id = xpath.select1("//Control[@Name='" + name + "']/@ID", doc).value
-		var e = "[id*='" + id + "']"
-		browser.waitForExist(e, 5000);
-		//watermark is not consistent in all controls, so this finds the parent and then searches down
-		var parent = browser.element(e).element('//..')
+		if (doc) {
+			var id = xpath.select1("//Control[@Name='" + name + "']/@ID", doc).value
+			var e = "[id*='" + id + "']"
+			browser.waitForExist(e, 5000);
+			//watermark is not consistent in all controls, so this finds the parent and then searches down
+			var parent = browser.element(e).element('//..')
 
-		if (parent.isExisting('.input-control-watermark'))
-			parent.click('.input-control-watermark')
-		else
-			browser.click(e)     //this is for textboxes as the watermark is on the same control
+			if (parent.isExisting('.input-control-watermark'))
+				parent.click('.input-control-watermark')
+			else
+				browser.click(e)     //this is for textboxes as the watermark is on the same control
 
-		// handle a "Now" keyword for dynamic date
-		if (txt.toLowerCase() == "now") {
-			var today = new Date();
-			var dd = today.getDate();
-			var mm = today.getMonth() + 1; 	//Jan is 0
-			var yyyy = today.getFullYear();
-			if (dd < 10) dd = '0' + dd;
-			if (mm < 10) mm = '0' + mm;
-			var txt = dd + '/' + mm + '/' + yyyy;
+			// handle a "Now" keyword for dynamic date
+			if (txt.toLowerCase() == "now") {
+				var today = new Date();
+				var dd = today.getDate();
+				var mm = today.getMonth() + 1; 	//Jan is 0
+				var yyyy = today.getFullYear();
+				if (dd < 10) dd = '0' + dd;
+				if (mm < 10) mm = '0' + mm;
+				var txt = dd + '/' + mm + '/' + yyyy;
+			}
+			browser.keys(txt)
+			browser.keys(['Enter'])
+		} else {
+			//fallback to searching for named element if no XML exists
+			var searchbox = browser.element('[name='+name+']')
+			browser.keys(txt)
+			browser.keys(['Enter'])
 		}
-		browser.keys(txt)
-		browser.keys(['Enter'])
 	})
 
 	//radio old
