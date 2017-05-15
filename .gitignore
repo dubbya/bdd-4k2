@@ -1,6 +1,7 @@
 # Project dirs
 bdd_output/
 *.feature
+*/daemon
 
 # Logs
 logs
