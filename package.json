@@ -1,6 +1,6 @@
 {
   "name": "bdd-4k2",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "main": "server.js",
   "dependencies": {
     "async": "^2.3.0",
