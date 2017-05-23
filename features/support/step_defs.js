@@ -1,7 +1,8 @@
 var xpath = require('xpath'),
 	dom = require('xmldom').DOMParser,
 	doc = null,
-	activeframe = null
+	activeframe = null,
+	defaultwait = 30000
 
 module.exports = function () {
 
@@ -12,27 +13,27 @@ module.exports = function () {
 			return viewControllerDefinition.xml;
 		});
 		doc = new dom().parseFromString(result.value)
-	}
-
-	var iframeExists = function () {
-		// wait for no ajaxLoaders
-		const elements = browser.elements(".ajaxLoader")
-		for (const elem of elements.value) {
-			if (elem.isVisible()) {
-				elem.waitForVisible(15000, true)
-			}
-		}
-		if (browser.isExisting('iframe[class="content-control-iframe"]') || browser.isExisting('iframe[class="runtime-popup"]')) {
-			return true
-		}
-		return false
+		console.log(xpath.select1("//Controllers/@FormID", doc).value)
 	}
 
 	var iframeSwitchTo = function () {
-		browser.frame()	//return to the root frame
+		// wait for no ajaxLoaders
+		try {
+			const elements = browser.elements(".ajaxLoader")
+			for (const elem of elements.value) {
+				if (elem.isVisible()) {
+					elem.waitForVisible(defaultwait, true)
+				}
+			}
+		} catch (err) {
+			console.log('silently handling no ajaxLoader err: ' + err)
+		}
+
+		//return to the root frame otherwise wont find the iframes
+		browser.frame()
 
 		var doSwitch = function (classname) {
-			//console.log('Switching to iframe: ' + classname)
+			console.log('Switching to iframe: ' + classname)
 			var myframe = browser.element('iframe[class="' + classname + '"]')
 			browser.frame(myframe.value)
 			activeframe = classname
@@ -41,23 +42,64 @@ module.exports = function () {
 			for (const elem of elements.value) {
 				//console.log(elem.isVisible())
 				if (elem.isVisible()) {
-					elem.waitForVisible(15000, true)
+					elem.waitForVisible(defaultwait, true)
 				}
-			} 
+			}
 		}
 
 		if (browser.isExisting('iframe[class="content-control-iframe"]')) doSwitch("content-control-iframe")
 
 		if (browser.isExisting('iframe[class="runtime-popup"]')) doSwitch("runtime-popup")
-
-		//getViewControllerDef()  //this was firing too early and getting the wrong controllers XML
 	}
 
-		var iframeSwitchBack = function () {
-			browser.frame()
-			//refresh the xmldoc with the parent viewcontrollerdefinition
-			getViewControllerDef()
+	var iframeSwitchBack = function () {
+		browser.frame()
+		activeframe = null
+		//refresh the xmldoc with the parent viewcontrollerdefinition
+		getViewControllerDef()
+	}
+
+	var findElementByXml = function (name) {
+		getViewControllerDef()
+
+		var id = (xpath.select1("//Control[@Name='" + name + "']/@ID", doc) != null) ? xpath.select1("//Control[@Name='" + name + "']/@ID", doc).value : null
+		console.log('id from xml: ' + id)
+
+		if (id != null && browser.isExisting('[id*="' + id + '"]')) {
+			console.log("found by xml id")
+			return browser.element('[id*="' + id + '"]')
+		} else {
+			return null
 		}
+	}
+
+	var getElement = function (name) {
+		var e = findElementByXml(name)
+
+		if (!e) {
+			if (browser.isExisting("//*[. = '" + name + "']")) {
+				console.log("found by exact element text")
+				const elements = browser.elements("//*[. = '" + name + "']")
+				for (const elem of elements.value) {
+					if (elem.isVisible()) {
+						return elem
+					}
+				}
+			} else if (browser.isExisting("//*[contains(text(), '" + name + "')]")) {
+				console.log("found by contains text using xpath")
+				const elements = browser.elements("//*[contains(text(), '" + name + "')]")
+				for (const elem of elements.value) {
+					if (elem.isVisible()) {
+						return elem
+					}
+				}
+			} else {
+				return null
+			}
+		} else {
+			return e
+		}
+	}
 
 	this.Before(function () {
 		console.log("**************************************************************************");
@@ -67,7 +109,6 @@ module.exports = function () {
 		browser.url(url);
 	})
 
-	//currently written for AAD and K2 forms login
 	this.Given(/^I have logged in as "([^"]*)" with "([^"]*)"$/, function (un, pwd) {
 		this.doFormsLogin = function () {
 			var e = browser.element('[id="UserName"]')
@@ -102,13 +143,13 @@ module.exports = function () {
 		else if (browser.isExisting('[id="SignInPanel"]')) {
 			var e = browser.element('span=Select Login Method')
 			e.click()	//open the select box
-			browser.waitForExist('[id="SignInPanel_droplist"]', 15000)
+			browser.waitForExist('[id="SignInPanel_droplist"]', defaultwait)
 
 			e = browser.element('[id="SignInPanel_droplist"]')
 			e = e.element('span*=Forms')
 			e.click()
 
-			browser.waitForExist('[id="UsernameField"]', 15000)
+			browser.waitForExist('[id="UsernameField"]', defaultwait)
 			this.doFormsLogin()
 		}
 		else {
@@ -116,7 +157,7 @@ module.exports = function () {
 		}
 
 		//get the K2 view control definitions
-		browser.waitForExist(".ajaxLoader", 15000, true)
+		browser.waitForExist(".ajaxLoader", defaultwait, true)
 		getViewControllerDef()
 	})
 
@@ -132,133 +173,71 @@ module.exports = function () {
 		browser.keys(['Enter'])
 	})
 
-	//ensures a view loads with a certain title and ajaxLoader is finished
 	this.Given(/^I see view "([^"]*)"$/, function (viewname) {
-		const elements = browser.elements(".ajaxLoader")
-		for (const elem of elements.value) {
-			if (elem.isVisible()) {
-				elem.waitForVisible(15000, true)
-			}
-		}
-		browser.pause(1000)
-
 		var str = "span=" + viewname
-		if (iframeExists()) {
-			//will switch to an iframe if finds content control or popupmanager
-			iframeSwitchTo()
-		}
 
-		browser.waitForVisible(str, 15000)
+		//will switch to an iframe if finds content control or popupmanager otherwise search main frame
+		iframeSwitchTo()
+
+		browser.waitForVisible(str, defaultwait)
 	});
 
 	this.Given(/^I see "([^"]*)"$/, function (title) {
-		browser.waitForExist("div=" + title, 15000)
+		browser.waitForExist("div=" + title, defaultwait)
 	})
 
-	this.When(/^I click "([^"]*)"$/, function (txt) {
-		var e, id 
-		//browser.pause(15000)    //TODO: improve this with a waitForExist gone on the list view ajax call or something OR waitforexists on popupmanager but handling the timeout correctly
-		getViewControllerDef()
+	this.When(/^I click "([^"]*)"$/, function (name) {
+		var e = null
 
-		var getElement = function () {
-			id = (xpath.select1("//Control[@Name='" + txt + "']/@ID", doc) != null) ? xpath.select1("//Control[@Name='" + txt + "']/@ID", doc).value : null
+		e = getElement(name)
 
-			//console.log('click id= ' + id)	//was coming through as null with wrong xml due to timing issues
-
-			if (browser.isExisting("//*[. = '" + txt + "']")) {
-				console.log("found by exact element text")
-				const elements = browser.elements("//*[. = '" + txt + "']")
-				for (const elem of elements.value) {
-					if (elem.isVisible()) {
-						e = elem
-						break
-					}
-				}
-			} else if (browser.isExisting("//*[contains(text(), '" + txt + "')]")) {
-				console.log("found by xpath")
-				const elements = browser.elements("//*[contains(text(), '" + txt + "')]")
-				for (const elem of elements.value) {
-					if (elem.isVisible()) {
-						e = elem
-						break
-					}
-				}
-			} else if (id != null && browser.isExisting('[id*="' + id + '"]')) {
-				console.log("found by xml id")
-				e = browser.element('[id*="' + id + '"]')
-			}
-		}
-
-		getElement()
-
-		// if we still dont have an element try top frame
-		if (e == null) {
+		if (e == null) {   			// if we still dont have an element try top frame
 			iframeSwitchBack()
-			getElement()
+			e = getElement(name)
 		}
 
 		e.click()
-		//iframeSwitchBack()
 	})
 
 	//picker, date fields, textbox
 	this.When(/^I type "([^"]*)" in "([^"]*)"$/, function (txt, name) {
-		var e, id
+		var e = null
 
-		var getElement = function () {
-			if (doc) {
-				id = (xpath.select1("//Control[@Name='" + name + "']/@ID", doc) != null) ? xpath.select1("//Control[@Name='" + name + "']/@ID", doc).value : null
-				//console.log(id)
-				if (browser.isExisting("[id*='" + id + "']")) {
-					e = browser.element("[id*='" + id + "']")
-				}
-			}
+		e = getElement(name)
+
+		if (e == null) {   			// if we still dont have an element try top frame
+			iframeSwitchBack()
+			e = getElement(name)
 		}
 
-		getElement()
+		//watermark is not consistent in all controls, so this finds the parent and then searches down
+		var parent = e.element('//..')
 
-		//if (e == null) {
-		//	iframeSwitchTo()
-		//	getElement()
-		//}
+		if (parent.isExisting('.input-control-watermark'))
+			parent.click('.input-control-watermark')
+		else
+			e.click()     //this is for textboxes as the watermark is on the same control
 
-		if (e == null) {
-			//fallback to searching for named element if no XML exists
-			var searchbox = browser.element('[name=' + name + ']')
-			browser.keys(txt)
-			browser.keys(['Enter'])
-		} else {
-			//watermark is not consistent in all controls, so this finds the parent and then searches down
-			var parent = e.element('//..')
-
-			if (parent.isExisting('.input-control-watermark'))
-				parent.click('.input-control-watermark')
-			else
-				e.click()     //this is for textboxes as the watermark is on the same control
-
-			// handle a "Now" keyword for dynamic date
-			if (txt.toLowerCase() == "now") {
-				var today = new Date()
-				var dd = today.getDate()
-				var mm = today.getMonth() + 1 	//Jan is 0
-				var yyyy = today.getFullYear()
-				if (dd < 10) dd = '0' + dd
-				if (mm < 10) mm = '0' + mm
-				var txt = dd + '/' + mm + '/' + yyyy
-			}
-			browser.keys(txt)
-			browser.keys(['Enter'])
+		// handle a "Now" keyword for dynamic date
+		if (txt.toLowerCase() == "now") {
+			var today = new Date()
+			var dd = today.getDate()
+			var mm = today.getMonth() + 1 	//Jan is 0
+			var yyyy = today.getFullYear()
+			if (dd < 10) dd = '0' + dd
+			if (mm < 10) mm = '0' + mm
+			var txt = dd + '/' + mm + '/' + yyyy
 		}
-
-		//iframeSwitchBack()
+		browser.keys(txt)
+		browser.keys(['Enter'])
 	})
 
-	//radio button
-	//TODO:eventually merge this with the choice radio button lists function
+	//radio button //TODO deprecate
 	this.When(/^I select "([^"]*)"$/, function (name) {
+		//TODO:eventually merge this with the choice radio button lists function
 		var id = (xpath.select1("//Control[@Name='" + name + "']/@ID", doc) != null) ? xpath.select1("//Control[@Name='" + name + "']/@ID", doc).value : null
 		var e = "div[id*='" + id + "']"
-		browser.waitForExist(e, 15000)
+		browser.waitForExist(e, defaultwait)
 		browser.click(e);
 	})
 
@@ -297,7 +276,7 @@ module.exports = function () {
 			var li = "li[title='" + val + "']"
 			var droplist = "[id='" + id + "_droplist']"
 
-			browser.element(droplist).waitForVisible(li, 15000)
+			browser.element(droplist).waitForVisible(li, defaultwait)
 			browser.element(droplist).click(li)
 		} else {
 			// TODO make this an assert to ensure the control exists
@@ -327,7 +306,7 @@ module.exports = function () {
 	});
 
 	this.Then(/^I see confirmation "([^"]*)"$/, function (txt) {
-		browser.waitForVisible('.popupManager',15000)
+		browser.waitForVisible('.popupManager', defaultwait)
 		const popup = browser.element(".popupManager")
 		const text = popup.getText('div=' + txt)
 		expect(text).toContain(txt)
